@@ -14,10 +14,9 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
-            'phone_number' => 'required|string|max:15',
-            'address' => 'required|string|max:255',
-            'image' => 'nullable|string',
-            'password' => 'required|min:6'
+            'phone' => 'required|string|max:15',
+            'password' => 'required|min:6|confirmed',
+            'password_confirmation' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -25,12 +24,12 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->full_name, // Correction ici
+            'name' => $request->full_name,
             'full_name' => $request->full_name,
             'email' => $request->email,
-            'phone_number' => $request->phone_number,
-            'address' => $request->address,
-            'image' => $request->image,
+            'phone_number' => $request->phone,
+            'address' => '', // Default empty value
+            'image' => '', // Default empty value
             'password' => Hash::make($request->password),
         ]);
 
@@ -67,5 +66,10 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Logged out']);
+    }
+
+    public function me(Request $request)
+    {
+        return response()->json($request->user());
     }
 }
